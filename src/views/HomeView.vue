@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <main v-if="false">
+    <main>
       <div class="main">
         <header>
           <img
@@ -9,7 +9,10 @@
             class="logo"
           />
           <div class="header-buttons">
-            <button class="color-white">Crie uma conta</button>
+            <create-account-modal
+              text="Crie uma conta"
+              colorClass="color-white"
+            />
             <button>Entrar</button>
           </div>
         </header>
@@ -21,9 +24,10 @@
               Receba ideias, reclamações e feeedbacks com um simples widget na
               página.
             </p>
-            <button @click="showCreateAccountModal">
-              Crie uma conta grátis
-            </button>
+            <create-account-modal
+              text="Crie uma conta grátis"
+              colorClass="color-pink"
+            />
           </div>
           <div class="main-image">
             <img src="../assets/blue-ballons.svg" alt="foto de balões azuis" />
@@ -38,40 +42,19 @@
       <footer><p>feedbacker &copy; 2020</p></footer>
     </main>
   </div>
-  <div class="create-account">
-    <form>
-      <div class="modal-header">
-        <h2 class="title">Crie uma conta</h2>
-        <button class="close-icon">X</button>
-      </div>
-      <div class="fields">
-        <div class="name-field">
-          <label for="name">Nome</label>
-          <input type="text" name="name" id="name-input" />
-        </div>
-        <div class="email-field">
-          <label for="email">E-mail</label>
-          <input type="text" name="email" id="email-input" />
-        </div>
-        <div class="password-field">
-          <label for="password">Senha</label>
-          <input type="text" name="password" id="password-input" />
-        </div>
-        <button>Criar conta</button>
-      </div>
-    </form>
-  </div>
 </template>
 
 <script>
+import createAccountModal from "@/components/createAccountModal.vue";
+import { ref } from "@vue/reactivity";
+
 export default {
+  components: { createAccountModal },
   setup() {
-    function showCreateAccountModal() {
-      console.log("click");
-    }
+    const modalOpen = ref(false);
 
     return {
-      showCreateAccountModal,
+      modalOpen,
     };
   },
 };
@@ -197,35 +180,5 @@ header {
   color: white;
   font-weight: 800;
   padding: 10px 20px;
-}
-
-.create-account {
-  width: 100%;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: lightblue;
-}
-
-.create-account form {
-  background-color: lightcoral;
-  padding: 30px;
-  width: 300px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 40px;
-}
-
-.name-field {
-  display: flex;
-  flex-direction: column;
-}
-
-.name-field input {
-  width: 90%;
 }
 </style>
