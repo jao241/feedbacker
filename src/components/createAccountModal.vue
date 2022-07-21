@@ -48,42 +48,49 @@
   </Teleport>
 </template>
 
-<script>
-import { ref } from "@vue/reactivity";
+<script setup>
+import { reactive, ref } from "@vue/reactivity";
+import { computed } from "@vue/runtime-core";
+import useVuelidate from "@vuelidate/core";
+import { required, email } from "@vuelidate/validators";
 
-export default {
-  setup() {
-    const modalOpen = ref(false);
-    const form = ref({
-      name: "",
-      email: "",
-      password: "",
-    });
+const modalOpen = ref(false);
 
-    function addNewPerson() {
-      console.log(form.value);
-    }
+// eslint-disable-next-line no-undef
+defineProps(["text", "colorClass"]);
 
-    function cleanFields() {
-      form.value.name = "";
-      form.value.email = "";
-      form.value.password = "";
-    }
+const form = reactive({
+  name: "",
+  email: "",
+  password: "",
+});
 
-    function closeModal() {
-      cleanFields();
-      modalOpen.value = false;
-    }
+const rules = computed(() => {
+  return {
+    name: { required },
+    email: { required, email },
+    password: { required },
+  };
+});
 
-    return {
-      form,
-      modalOpen,
-      addNewPerson,
-      closeModal,
-    };
-  },
-  props: ["text", "colorClass"],
-};
+const vuelidate = useVuelidate(rules);
+
+function addNewPerson() {
+  console.log(form);
+
+  console.log(vuelidate.value.$error);
+}
+
+function cleanFields() {
+  form.name = "";
+  form.email = "";
+  form.password = "";
+}
+
+function closeModal() {
+  cleanFields();
+  modalOpen.value = false;
+}
 </script>
 
 <style scoped>

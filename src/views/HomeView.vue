@@ -44,20 +44,11 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import createAccountModal from "@/components/createAccountModal.vue";
 import { ref } from "@vue/reactivity";
 
-export default {
-  components: { createAccountModal },
-  setup() {
-    const modalOpen = ref(false);
-
-    return {
-      modalOpen,
-    };
-  },
-};
+const modalOpen = ref(false);
 </script>
 
 <style scoped>
