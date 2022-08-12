@@ -46,9 +46,6 @@
 
 <script setup>
 import createAccountModal from "@/components/createAccountModal.vue";
-import { ref } from "@vue/reactivity";
-
-const modalOpen = ref(false);
 </script>
 
 <style scoped>
