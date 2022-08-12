@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 <template>
   <button :class="colorClass" @click="modalOpen = true">{{ text }}</button>
 
   <Teleport to="body">
     <div class="create-account" v-if="modalOpen">
-      <form action="POST">
+      <form>
         <div class="modal-header">
           <h2 class="title">Crie uma conta</h2>
           <button class="close-icon" @click="closeModal">
@@ -14,34 +15,54 @@
           <div class="name-field">
             <label for="name">Nome</label>
             <input
+              :class="{ errorField: errorNameField }"
               v-model.lazy="form.name"
               type="text"
               name="name"
               id="name-input"
-              placeholder="Igor Halfeld"
+              :placeholder="placeholder.name"
             />
+            <span v-if="showNameErrorMessage">{{ errorMessage }}</span>
           </div>
           <div class="email-field">
             <label for="email">E-mail</label>
             <input
+              :class="{ errorField: errorEmailField }"
               v-model.lazy="form.email"
               type="email"
               name="email"
               id="email-input"
-              placeholder="igor@exemplo.com"
+              :placeholder="placeholder.email"
             />
+            <span v-if="showEmailErrorMessage">{{ errorMessage }}</span>
           </div>
           <div class="password-field">
             <label for="password">Senha</label>
             <input
+              :class="{ errorField: errorPasswordField }"
               v-model.lazy="form.password"
               type="password"
               name="password"
               id="password-input"
-              placeholder="****"
+              :placeholder="placeholder.password"
             />
+            <span v-if="showPasswordErrorMessage">{{ errorMessage }}</span>
           </div>
-          <button @click.prevent="addNewPerson">Criar conta</button>
+          <button
+            @click.prevent="addNewPerson"
+            :class="{
+              loadingButton: showLoadIcon,
+              activeButton: !showLoadIcon,
+            }"
+          >
+            <p v-if="!showLoadIcon">Criar conta</p>
+            <img
+              v-if="showLoadIcon"
+              id="loadImg"
+              src="../assets/load-icon.svg"
+              alt="icone de carregamento"
+            />
+          </button>
         </div>
       </form>
     </div>
@@ -49,46 +70,76 @@
 </template>
 
 <script setup>
-import { reactive, ref } from "@vue/reactivity";
-import { computed } from "@vue/runtime-core";
-import useVuelidate from "@vuelidate/core";
-import { required, email } from "@vuelidate/validators";
+import { ref } from "@vue/reactivity";
 
 const modalOpen = ref(false);
 
 // eslint-disable-next-line no-undef
 defineProps(["text", "colorClass"]);
 
-const form = reactive({
+const placeholder = {
+  name: "Igor Halfeld",
+  email: "igor@exemplo.com",
+  password: "****",
+};
+
+const form = ref({
   name: "",
   email: "",
   password: "",
 });
 
-const rules = computed(() => {
-  return {
-    name: { required },
-    email: { required, email },
-    password: { required },
-  };
-});
+const errorNameField = ref(false);
+const errorEmailField = ref(false);
+const errorPasswordField = ref(false);
 
-const vuelidate = useVuelidate(rules);
+const showNameErrorMessage = ref(false);
+const showEmailErrorMessage = ref(false);
+const showPasswordErrorMessage = ref(false);
+const errorMessage = "* O campo é obrigatório";
+
+const showLoadIcon = ref(true);
+
+function validateFields() {
+  if (!form.value.name) {
+    showNameErrorMessage.value = true;
+    errorNameField.value = true;
+  }
+  if (!form.value.email) {
+    showEmailErrorMessage.value = true;
+    errorEmailField.value = true;
+  }
+  if (!form.value.password) {
+    showPasswordErrorMessage.value = true;
+    errorPasswordField.value = true;
+  }
+}
 
 function addNewPerson() {
-  console.log(form);
+  console.log(form.value);
 
-  console.log(vuelidate.value.$error);
+  validateFields();
 }
 
 function cleanFields() {
-  form.name = "";
-  form.email = "";
-  form.password = "";
+  form.value.name = "";
+  form.value.email = "";
+  form.value.password = "";
+}
+
+function cleanErrorMessages() {
+  errorNameField.value = false;
+  errorEmailField.value = false;
+  errorPasswordField.value = false;
+
+  showNameErrorMessage.value = false;
+  showEmailErrorMessage.value = false;
+  showPasswordErrorMessage.value = false;
 }
 
 function closeModal() {
   cleanFields();
+  cleanErrorMessages();
   modalOpen.value = false;
 }
 </script>
@@ -98,12 +149,24 @@ button {
   background: none;
   border: none;
   font-size: 18px;
+  cursor: pointer;
+}
+
+span {
+  color: #f88676;
+  font-size: 12px;
+}
+
+#loadImg {
+  padding: 0 40px;
+  width: 16px;
+  animation: load 0.8s infinite;
 }
 
 .color-white {
   color: white;
   font-weight: 800;
-  padding-right: 60px;
+  margin-right: 60px;
 }
 
 .color-pink {
@@ -148,6 +211,7 @@ button {
 .password-field {
   display: flex;
   flex-direction: column;
+  padding-bottom: 10px;
 }
 
 .name-field label,
@@ -163,16 +227,44 @@ button {
   border: none;
   border-radius: 3px;
   padding: 8px 8px;
-  margin-bottom: 20px;
   font-size: 20px;
+  outline: none;
 }
 
 form .fields button {
-  background-color: #ef4983;
   border-radius: 30px;
   color: white;
   font-weight: 800;
   padding: 10px 20px;
   margin-top: 15px;
+}
+
+.name-field .errorField,
+.email-field .errorField,
+.password-field .errorField {
+  border: 3px solid #f88676;
+}
+
+.name-field .errorField::placeholder,
+.email-field .errorField::placeholder,
+.password-field .errorField::placeholder {
+  color: #f88676;
+}
+
+.activeButton {
+  background-color: #ef4983;
+}
+
+.loadingButton {
+  background-color: rgba(239, 73, 131, 0.64);
+}
+@keyframes load {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(180deg);
+  }
 }
 </style>
